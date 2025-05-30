@@ -67,6 +67,21 @@ jobs:
           **/bin/Release/net8.0-android/**
           !**/bin/Release/**/ref/**
 
+  sonarcloud:
+    needs: [build-and-test]
+    runs-on: windows-latest
+    name: SonarCloud Analysis
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   code-quality:
     needs: [build-and-test]
     runs-on: windows-latest
@@ -100,6 +115,7 @@ jobs:
     
     - name: Security Scan Results
       run: echo "Security scanning completed (Snyk token configuration optional)"
+
 
   android-build:
     needs: [build-and-test, code-quality]

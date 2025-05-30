@@ -35,11 +35,11 @@ jobs:
     - name: Clean solution
       run: dotnet clean
     
-    - name: Restore NuGet packages (Android only)
-      run: dotnet restore -f net8.0-android --verbosity normal
+    - name: Restore NuGet packages
+      run: dotnet restore
     
     - name: Build Android target only
-      run: dotnet build -f net8.0-android --no-restore --configuration Release --verbosity normal
+      run: dotnet build PourfectApp/PourfectApp.csproj -f net8.0-android --no-restore --configuration Release --verbosity normal
     
     - name: Run tests
       run: |
@@ -85,7 +85,7 @@ jobs:
       run: dotnet workload install maui --ignore-failed-sources
     
     - name: Restore packages
-      run: dotnet restore -f net8.0-android
+      run: dotnet restore
     
     - name: Run .NET Format Check
       run: dotnet format --verify-no-changes --verbosity diagnostic || echo "Format check completed with warnings"
@@ -126,10 +126,10 @@ jobs:
       run: dotnet workload install maui --ignore-failed-sources
     
     - name: Restore dependencies
-      run: dotnet restore -f net8.0-android --verbosity normal
+      run: dotnet restore
     
     - name: Build and Publish Android APK
-      run: dotnet publish -f net8.0-android -c Release --verbosity normal
+      run: dotnet publish PourfectApp/PourfectApp.csproj -f net8.0-android -c Release --verbosity normal
     
     - name: List APK files (for debugging)
       run: Get-ChildItem -Path . -Recurse -Filter "*.apk" | Select-Object FullName

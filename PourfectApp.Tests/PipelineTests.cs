@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PourfectApp.Core.Models;
 using System;
+using System.Collections.Generic;
 
 namespace PourfectApp.Tests.Models
 {

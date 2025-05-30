@@ -1,6 +1,6 @@
-﻿using SQLite;
 using System.Security.Cryptography;
 using System.Text;
+using SQLite;
 
 namespace PourfectApp.Models
 {

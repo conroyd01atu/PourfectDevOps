@@ -1,4 +1,4 @@
-﻿using PourfectApp.Views;
+using PourfectApp.Views;
 
 namespace PourfectApp
 {
@@ -10,7 +10,7 @@ namespace PourfectApp
 
             // Check if user is already logged in
             bool isLoggedIn = Preferences.Get("isLoggedIn", false);
-            
+
             if (isLoggedIn)
             {
                 // User is logged in, go straight to main app

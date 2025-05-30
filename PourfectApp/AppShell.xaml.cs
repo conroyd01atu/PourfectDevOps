@@ -1,4 +1,4 @@
-﻿namespace PourfectApp
+namespace PourfectApp
 {
     public partial class AppShell : Shell
     {

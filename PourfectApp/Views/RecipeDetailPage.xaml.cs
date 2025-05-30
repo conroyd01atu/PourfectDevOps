@@ -1,4 +1,4 @@
-﻿using PourfectApp.Models;
+using PourfectApp.Models;
 
 namespace PourfectApp.Views
 {

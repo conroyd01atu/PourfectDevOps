@@ -1,4 +1,4 @@
-﻿using PourfectApp.Services;
+using PourfectApp.Services;
 
 namespace PourfectApp
 {

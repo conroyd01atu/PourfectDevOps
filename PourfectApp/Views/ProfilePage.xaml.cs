@@ -1,4 +1,4 @@
-﻿namespace PourfectApp.Views
+namespace PourfectApp.Views
 {
     public partial class ProfilePage : ContentPage
     {

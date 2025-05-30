@@ -112,7 +112,7 @@ namespace PourfectApp.Views
                            $"Roast Date: {brew.RoastDate:MMM dd, yyyy}\n\n" +
                            $"Method: {brew.Dripper}\n" +
                            $"Ratio: {brew.CoffeeWeight}g : {brew.WaterWeight}g ({brew.Ratio})\n" +
-                           $"Temperature: {brew.WaterTemperature}°C\n" +
+                           $"Temperature: {brew.WaterTemperature}Â°C\n" +
                            $"Grind: {brew.GrindSize}\n" +
                            $"Time: {brew.BrewTime}\n\n" +
                            $"Rating: {brew.Rating:F1}/5.0\n\n";
@@ -197,7 +197,7 @@ namespace PourfectApp.Views
                 $"Use these parameters:\n\n" +
                 $"Coffee: {brew.CoffeeName}\n" +
                 $"{brew.CoffeeWeight}g : {brew.WaterWeight}g\n" +
-                $"Temp: {brew.WaterTemperature}°C\n" +
+                $"Temp: {brew.WaterTemperature}Â°C\n" +
                 $"Grind: {brew.GrindSize}",
                 "OK");
         }

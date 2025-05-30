@@ -1,7 +1,7 @@
-﻿using SQLite;
-using PourfectApp.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PourfectApp.Models;
+using SQLite;
 
 namespace PourfectApp.Services
 {

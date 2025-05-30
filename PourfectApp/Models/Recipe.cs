@@ -1,5 +1,5 @@
-﻿using SQLite;
 using System.Text.Json;
+using SQLite;
 
 namespace PourfectApp.Models
 {

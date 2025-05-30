@@ -1,0 +1,16 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+
+	<!-- Background -->
+	<rect width="1080" height="1920" fill="#8B4513" />
+
+	<!-- App name -->
+	<text x="540" y="960" font-size="260" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold">
+		Pourfect
+	</text>
+
+	<!-- Subtitle -->
+	<text x="540" y="1160" font-size="120" text-anchor="middle" fill="white" font-family="sans-serif">
+		Perfect Pour-over
+	</text>
+
+</svg>

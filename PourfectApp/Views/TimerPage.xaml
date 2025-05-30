@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PourfectApp.Views.TimerPage"
+             Title="Timer"
+             BackgroundColor="#F5F5F5">
+
+    <VerticalStackLayout Padding="20" Spacing="20" VerticalOptions="Center">
+
+        <Label Text="Brew Timer" 
+               FontSize="24" 
+               FontAttributes="Bold"
+               TextColor="#4A2C17"
+               HorizontalOptions="Center"/>
+
+        <!-- Timer Display -->
+        <Frame BackgroundColor="White" 
+               CornerRadius="20" 
+               Padding="40"
+               HorizontalOptions="Center"
+               WidthRequest="250"
+               HeightRequest="250">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="10">
+                <Label x:Name="TimerLabel" 
+                       Text="00:00"
+                       FontSize="48"
+                       FontAttributes="Bold"
+                       TextColor="#4A2C17"
+                       HorizontalOptions="Center"/>
+
+                <Label x:Name="PhaseLabel" 
+                       Text="Ready to brew"
+                       FontSize="16"
+                       TextColor="#666"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Control Buttons -->
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+            <Button x:Name="StartButton"
+                    Text="Start"
+                    Clicked="OnStartClicked"
+                    BackgroundColor="#8B4513"
+                    TextColor="White"
+                    CornerRadius="25"
+                    WidthRequest="100"
+                    HeightRequest="50"/>
+
+            <Button x:Name="ResetButton"
+                    Text="Reset"
+                    Clicked="OnResetClicked"
+                    BackgroundColor="#666"
+                    TextColor="White"
+                    CornerRadius="25"
+                    WidthRequest="100"
+                    HeightRequest="50"/>
+        </HorizontalStackLayout>
+
+        <!-- Preset Times -->
+        <Label Text="Quick Presets" 
+               FontSize="16" 
+               TextColor="#666"
+               HorizontalOptions="Center"
+               Margin="0,20,0,0"/>
+
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+            <Button Text="2:00" 
+                    Clicked="OnPresetClicked"
+                    CommandParameter="120"
+                    BackgroundColor="White"
+                    TextColor="#4A2C17"
+                    CornerRadius="15"
+                    Padding="15,10"/>
+
+            <Button Text="2:30" 
+                    Clicked="OnPresetClicked"
+                    CommandParameter="150"
+                    BackgroundColor="White"
+                    TextColor="#4A2C17"
+                    CornerRadius="15"
+                    Padding="15,10"/>
+
+            <Button Text="3:00" 
+                    Clicked="OnPresetClicked"
+                    CommandParameter="180"
+                    BackgroundColor="White"
+                    TextColor="#4A2C17"
+                    CornerRadius="15"
+                    Padding="15,10"/>
+
+            <Button Text="4:00" 
+                    Clicked="OnPresetClicked"
+                    CommandParameter="240"
+                    BackgroundColor="White"
+                    TextColor="#4A2C17"
+                    CornerRadius="15"
+                    Padding="15,10"/>
+        </HorizontalStackLayout>
+
+        <!-- Instructions -->
+        <Frame BackgroundColor="White" CornerRadius="10" Padding="15" Margin="0,20,0,0">
+            <VerticalStackLayout Spacing="5">
+                <Label Text="Quick Guide:" FontAttributes="Bold" TextColor="#4A2C17" FontSize="14"/>
+                <Label Text="• Press Start to begin timing" TextColor="#666" FontSize="12"/>
+                <Label Text="• Press Start again to pause" TextColor="#666" FontSize="12"/>
+                <Label Text="• Use presets for common brew times" TextColor="#666" FontSize="12"/>
+                <Label Text="• Reset returns timer to 00:00" TextColor="#666" FontSize="12"/>
+            </VerticalStackLayout>
+        </Frame>
+
+    </VerticalStackLayout>
+
+</ContentPage>

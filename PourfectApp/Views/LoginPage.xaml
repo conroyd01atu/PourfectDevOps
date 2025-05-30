@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PourfectApp.Views.LoginPage"
+             Title="Login"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20">
+
+            <!-- App Logo/Title -->
+            <Label Text="☕ Pourfect" 
+                   FontSize="36" 
+                   FontAttributes="Bold"
+                   TextColor="#4A2C17"
+                   HorizontalOptions="Center" 
+                   Margin="0,50,0,30"/>
+
+            <Label Text="Your Pour-Over Companion" 
+                   FontSize="18" 
+                   TextColor="#666666"
+                   HorizontalOptions="Center" 
+                   Margin="0,0,0,40"/>
+
+            <!-- Login Form -->
+            <Frame BackgroundColor="White" 
+                   CornerRadius="10" 
+                   Padding="20"
+                   HasShadow="True">
+
+                <VerticalStackLayout Spacing="15">
+
+                    <Label Text="Username" 
+                           TextColor="#333333"
+                           FontSize="14"/>
+                    <Entry x:Name="UsernameEntry" 
+                           Placeholder="Enter your username"
+                           BackgroundColor="#F9F9F9"/>
+
+                    <Label Text="Password" 
+                           TextColor="#333333"
+                           FontSize="14"/>
+                    <Entry x:Name="PasswordEntry" 
+                           Placeholder="Enter your password"
+                           IsPassword="True"
+                           BackgroundColor="#F9F9F9"/>
+
+                    <Button x:Name="LoginButton"
+                            Text="Login" 
+                            Clicked="OnLoginClicked"
+                            BackgroundColor="#8B4513"
+                            TextColor="White"
+                            CornerRadius="5"
+                            Margin="0,20,0,0"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- For now, a simple bypass option -->
+            <Button x:Name="SkipLoginButton"
+                    Text="Continue as Guest" 
+                    Clicked="OnSkipLoginClicked"
+                    BackgroundColor="Transparent"
+                    TextColor="#8B4513"
+                    Margin="0,20,0,0"/>
+
+            <!-- Register Link -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,20,0,0">
+                <Label Text="Don't have an account?" 
+                       TextColor="#666666"/>
+                <Label Text="Register" 
+                       TextColor="#8B4513"
+                       FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegisterTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

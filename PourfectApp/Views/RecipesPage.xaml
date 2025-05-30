@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PourfectApp.Views.RecipesPage"
+             Title="Recipes"
+             BackgroundColor="#F5F5F5">
+
+    <VerticalStackLayout Padding="20">
+
+        <Label Text="Recipes" 
+               FontSize="24" 
+               FontAttributes="Bold"
+               TextColor="#4A2C17"
+               HorizontalOptions="Center" 
+               Margin="0,10,0,20"/>
+
+        <!-- Add Recipe Button -->
+        <Button Text="+ Add New Recipe" 
+                Clicked="OnAddRecipeClicked"
+                BackgroundColor="#8B4513"
+                TextColor="White"
+                CornerRadius="5"
+                Margin="0,0,0,20"/>
+
+        <!-- Recipe Categories -->
+        <ScrollView Orientation="Horizontal" Margin="0,0,0,20">
+            <HorizontalStackLayout x:Name="FilterButtons" Spacing="10">
+                <Button Text="All" 
+                        Clicked="OnFilterClicked"
+                        CommandParameter="All"
+                        BackgroundColor="#4A2C17" 
+                        TextColor="White" 
+                        CornerRadius="15" 
+                        Padding="15,5"/>
+                <Button Text="V60" 
+                        Clicked="OnFilterClicked"
+                        CommandParameter="V60"
+                        BackgroundColor="White" 
+                        TextColor="#4A2C17" 
+                        CornerRadius="15" 
+                        Padding="15,5"/>
+                <Button Text="Chemex" 
+                        Clicked="OnFilterClicked"
+                        CommandParameter="Chemex"
+                        BackgroundColor="White" 
+                        TextColor="#4A2C17" 
+                        CornerRadius="15" 
+                        Padding="15,5"/>
+                <Button Text="Kalita" 
+                        Clicked="OnFilterClicked"
+                        CommandParameter="Kalita Wave"
+                        BackgroundColor="White" 
+                        TextColor="#4A2C17" 
+                        CornerRadius="15" 
+                        Padding="15,5"/>
+                <Button Text="Favorites" 
+                        Clicked="OnFilterClicked"
+                        CommandParameter="Favorites"
+                        BackgroundColor="White" 
+                        TextColor="#4A2C17" 
+                        CornerRadius="15" 
+                        Padding="15,5"/>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Recipe List -->
+        <CollectionView x:Name="RecipesCollectionView">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView>
+                        <!-- Swipe Actions -->
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Edit"
+                                          BackgroundColor="#FFC107"
+                                          Command="{Binding Source={x:Reference RecipesCollectionView}, Path=BindingContext.EditCommand}"
+                                          CommandParameter="{Binding .}"/>
+                                <SwipeItem Text="Delete"
+                                          BackgroundColor="#DC3545"
+                                          Command="{Binding Source={x:Reference RecipesCollectionView}, Path=BindingContext.DeleteCommand}"
+                                          CommandParameter="{Binding .}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <!-- Recipe Card -->
+                        <Frame BackgroundColor="White" CornerRadius="10" Padding="15" HasShadow="True">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                                <!-- Recipe Name -->
+                                <Label Text="{Binding Name}" 
+                                       FontAttributes="Bold" 
+                                       FontSize="18"
+                                       TextColor="#4A2C17"
+                                       Grid.Row="0" Grid.Column="0"/>
+
+                                <!-- Favorite Icon -->
+                                <Button Text="{Binding FavoriteIcon}" 
+                                       FontSize="20"
+                                       BackgroundColor="Transparent"
+                                       Clicked="OnFavoriteClicked"
+                                       CommandParameter="{Binding .}"
+                                       Grid.Row="0" Grid.Column="1"/>
+
+                                <!-- Description -->
+                                <Label Text="{Binding Description}" 
+                                       TextColor="#666" 
+                                       FontSize="14"
+                                       Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Margin="0,5,0,5"/>
+
+                                <!-- Method and Ratio -->
+                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Method}" TextColor="#8B4513" FontAttributes="Bold" FontSize="12"/>
+                                            <Span Text=" • " TextColor="#666" FontSize="12"/>
+                                            <Span Text="Ratio " TextColor="#666" FontSize="12"/>
+                                            <Span Text="{Binding Ratio}" TextColor="#666" FontAttributes="Bold" FontSize="12"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <!-- Key Parameters -->
+                                <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="🌡️ " FontSize="12"/>
+                                            <Span Text="{Binding Temperature}" TextColor="#666" FontSize="12"/>
+                                            <Span Text="°C  " TextColor="#666" FontSize="12"/>
+                                            <Span Text="⏱️ " FontSize="12"/>
+                                            <Span Text="{Binding TotalTime}" TextColor="#666" FontSize="12"/>
+                                            <Span Text="  ☕ " FontSize="12"/>
+                                            <Span Text="{Binding GrindSize}" TextColor="#666" FontSize="12"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </Grid>
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRecipeTapped" CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- Empty state -->
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+                    <Label Text="📝" FontSize="60" HorizontalOptions="Center" Opacity="0.5"/>
+                    <Label Text="No recipes found" 
+                           FontSize="18" 
+                           TextColor="#666"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Add your first recipe to get started!" 
+                           FontSize="14" 
+                           TextColor="#999"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+</ContentPage>

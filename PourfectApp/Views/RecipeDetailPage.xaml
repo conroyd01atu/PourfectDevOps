@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PourfectApp.Views.RecipeDetailPage"
+             Title="{Binding Name}"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Recipe Header -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <HorizontalStackLayout>
+                        <Label Text="{Binding Name}" 
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               TextColor="#4A2C17"
+                               HorizontalOptions="StartAndExpand"/>
+                        <Label Text="{Binding FavoriteIcon}" FontSize="24"/>
+                    </HorizontalStackLayout>
+
+                    <Label Text="{Binding Description}" 
+                           TextColor="#666" 
+                           FontSize="16"/>
+
+                    <Label FontSize="14" TextColor="#999">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Created by "/>
+                                <Span Text="{Binding CreatedBy}" FontAttributes="Bold"/>
+                                <Span Text=" on "/>
+                                <Span Text="{Binding CreatedDate, StringFormat='{0:MMM dd, yyyy}'}"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Key Parameters -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="15">
+                    <Label Text="☕ Method" FontAttributes="Bold" Grid.Row="0" Grid.Column="0"/>
+                    <Label Text="{Binding Method}" Grid.Row="0" Grid.Column="1" HorizontalOptions="End"/>
+
+                    <Label Text="⚖️ Ratio" FontAttributes="Bold" Grid.Row="1" Grid.Column="0"/>
+                    <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="End">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding CoffeeWeight}"/>
+                                <Span Text="g : "/>
+                                <Span Text="{Binding WaterWeight}"/>
+                                <Span Text="g ("/>
+                                <Span Text="{Binding Ratio}"/>
+                                <Span Text=")"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <Label Text="🌡️ Temperature" FontAttributes="Bold" Grid.Row="2" Grid.Column="0"/>
+                    <Label Text="{Binding Temperature, StringFormat='{0}°C'}" Grid.Row="2" Grid.Column="1" HorizontalOptions="End"/>
+
+                    <Label Text="⏱️ Total Time" FontAttributes="Bold" Grid.Row="3" Grid.Column="0"/>
+                    <Label Text="{Binding TotalTime}" Grid.Row="3" Grid.Column="1" HorizontalOptions="End"/>
+
+                    <Label Text="🔧 Grind Size" FontAttributes="Bold" Grid.Row="4" Grid.Column="0"/>
+                    <Label Text="{Binding GrindSize}" Grid.Row="4" Grid.Column="1" HorizontalOptions="End"/>
+                </Grid>
+            </Frame>
+
+            <!-- Advanced Parameters -->
+            <Frame x:Name="AdvancedParamsFrame" BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Advanced Parameters" FontAttributes="Bold" TextColor="#4A2C17" FontSize="16"/>
+                    <Grid x:Name="ParametersGrid" ColumnDefinitions="*,*" RowSpacing="10">
+                        <!-- Will be populated in code-behind -->
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Recipe Steps -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Step-by-Step Instructions" FontAttributes="Bold" TextColor="#4A2C17" FontSize="16"/>
+                    <VerticalStackLayout x:Name="StepsContainer" Spacing="10">
+                        <!-- Steps will be added dynamically -->
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Additional Notes -->
+            <Frame x:Name="NotesFrame" BackgroundColor="White" CornerRadius="10" Padding="15" IsVisible="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Notes" FontAttributes="Bold" TextColor="#4A2C17" FontSize="16"/>
+                    <Label x:Name="NotesLabel" TextColor="#666" FontSize="14"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,20,0,40">
+                <Button Text="Brew This" 
+                        Clicked="OnBrewThisClicked"
+                        BackgroundColor="#8B4513"
+                        TextColor="White"
+                        CornerRadius="5"
+                        Grid.Column="0"/>
+
+                <Button Text="Edit" 
+                        Clicked="OnEditClicked"
+                        BackgroundColor="#FFC107"
+                        TextColor="White"
+                        CornerRadius="5"
+                        Grid.Column="1"/>
+
+                <Button Text="Delete" 
+                        Clicked="OnDeleteClicked"
+                        BackgroundColor="#DC3545"
+                        TextColor="White"
+                        CornerRadius="5"
+                        Grid.Column="2"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

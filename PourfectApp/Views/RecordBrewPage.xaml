@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PourfectApp.Views.RecordBrewPage"
+             Title="Record Brew"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Record New Brew" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   TextColor="#4A2C17"
+                   HorizontalOptions="Center" 
+                   Margin="0,10,0,20"/>
+
+            <!-- Coffee Details -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Coffee Details" FontAttributes="Bold" TextColor="#4A2C17"/>
+
+                    <Label Text="Coffee Name" FontSize="14" TextColor="#666"/>
+                    <Entry x:Name="CoffeeNameEntry" Placeholder="e.g., Ethiopian Yirgacheffe" BackgroundColor="#F9F9F9"/>
+
+                    <Label Text="Roaster" FontSize="14" TextColor="#666"/>
+                    <Entry x:Name="RoasterEntry" Placeholder="e.g., Blue Bottle Coffee" BackgroundColor="#F9F9F9"/>
+
+                    <Label Text="Roast Date" FontSize="14" TextColor="#666"/>
+                    <DatePicker x:Name="RoastDatePicker" BackgroundColor="#F9F9F9"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Brew Parameters -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Brew Parameters" FontAttributes="Bold" TextColor="#4A2C17"/>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="10">
+                        <!-- Coffee Weight -->
+                        <Label Text="Coffee (g)" FontSize="14" TextColor="#666" Grid.Row="0" Grid.Column="0"/>
+                        <Entry x:Name="CoffeeWeightEntry" Placeholder="15" Keyboard="Numeric" BackgroundColor="#F9F9F9" Grid.Row="1" Grid.Column="0"/>
+
+                        <!-- Water Weight -->
+                        <Label Text="Water (g)" FontSize="14" TextColor="#666" Grid.Row="0" Grid.Column="1"/>
+                        <Entry x:Name="WaterWeightEntry" Placeholder="250" Keyboard="Numeric" BackgroundColor="#F9F9F9" Grid.Row="1" Grid.Column="1"/>
+
+                        <!-- Grind Size -->
+                        <Label Text="Grind Size" FontSize="14" TextColor="#666" Grid.Row="2" Grid.Column="0"/>
+                        <Entry x:Name="GrindSizeEntry" Placeholder="Medium" BackgroundColor="#F9F9F9" Grid.Row="3" Grid.Column="0"/>
+
+                        <!-- Water Temp -->
+                        <Label Text="Water Temp (°C)" FontSize="14" TextColor="#666" Grid.Row="2" Grid.Column="1"/>
+                        <Entry x:Name="WaterTempEntry" Placeholder="93" Keyboard="Numeric" BackgroundColor="#F9F9F9" Grid.Row="3" Grid.Column="1"/>
+
+                        <!-- Brew Time -->
+                        <Label Text="Total Time" FontSize="14" TextColor="#666" Grid.Row="4" Grid.Column="0"/>
+                        <Entry x:Name="BrewTimeEntry" Placeholder="2:30" BackgroundColor="#F9F9F9" Grid.Row="5" Grid.Column="0"/>
+
+                        <!-- Dripper -->
+                        <Label Text="Dripper" FontSize="14" TextColor="#666" Grid.Row="4" Grid.Column="1"/>
+                        <Picker x:Name="DripperPicker" BackgroundColor="#F9F9F9" Grid.Row="5" Grid.Column="1">
+                            <Picker.Items>
+                                <x:String>V60</x:String>
+                                <x:String>Chemex</x:String>
+                                <x:String>Kalita Wave</x:String>
+                                <x:String>Origami</x:String>
+                                <x:String>Orea</x:String>
+                                <x:String>Other</x:String>
+                            </Picker.Items>
+                        </Picker>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Notes -->
+            <Frame BackgroundColor="White" CornerRadius="10" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Tasting Notes" FontAttributes="Bold" TextColor="#4A2C17"/>
+                    <Editor x:Name="NotesEditor" 
+                            Placeholder="Describe the taste, aroma, and your overall experience..." 
+                            HeightRequest="100"
+                            BackgroundColor="#F9F9F9"/>
+
+                    <Label Text="Rating" FontSize="14" TextColor="#666"/>
+                    <Slider x:Name="RatingSlider" 
+                            Minimum="0" 
+                            Maximum="5" 
+                            Value="3"
+                            ThumbColor="#8B4513"
+                            MinimumTrackColor="#8B4513"
+                            MaximumTrackColor="#D3D3D3"/>
+                    <Label x:Name="RatingLabel" 
+                           Text="3.0 / 5.0" 
+                           HorizontalOptions="Center"
+                           TextColor="#666"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Save Button -->
+            <Button Text="Save Brew" 
+                    Clicked="OnSaveBrewClicked"
+                    BackgroundColor="#8B4513"
+                    TextColor="White"
+                    CornerRadius="5"
+                    Margin="0,20,0,40"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

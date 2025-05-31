@@ -221,13 +221,13 @@ jobs:
       shell: pwsh
     
     - name: Generate Dependency Report
-      run: dotnet list package --output-format json > dependency-report.json
+      run: dotnet list package --output-format json > dependency-report.txt
     
     - name: Upload Security Report
       uses: actions/upload-artifact@v4
       with:
         name: dependency-security-report
-        path: dependency-report.json
+        path: dependency-report.txt
         retention-days: 30
 
     - name:  Snyk DevSecOps Analysis
@@ -600,7 +600,6 @@ jobs:
       static-analysis, 
       sonarcloud-analysis, 
       dependency-security-scan, 
-      snyk-security-analysis,
       android-build, 
       docker-containerisation
     ]

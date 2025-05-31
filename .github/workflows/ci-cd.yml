@@ -165,7 +165,7 @@ jobs:
       shell: pwsh
 
   # ============================================================================
-  # STAGE 2: SECURITY & QUALITY ANALYSIS (Parallel After Basic Validation)
+  # STAGE 2: SECURITY & QUALITY ANALYSIS 
   # ============================================================================
 
   sonarcloud-analysis:
@@ -403,7 +403,7 @@ jobs:
         Write-Host "Code quality checks targeted at production code only"
 
   # ============================================================================
-  # STAGE 3: BUILD ARTEFACTS (Sequential After Quality Gates Pass)
+  # STAGE 3: BUILD ARTEFACTS (After Quality Gates Pass)
   # ============================================================================
 
   android-build:
@@ -790,7 +790,7 @@ jobs:
         
         echo "Discord notification sent successfully"
     
-    # Email notification for formal team communication - COMMENTED OUT
+    # Email notification for formal team communication - COMMENTED OUT, NOT WORKING ON MS365?
     # - name: Send Email Notification
     #   env:
     #     NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}

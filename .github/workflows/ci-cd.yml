@@ -179,7 +179,7 @@ jobs:
         fetch-depth: 0
     
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarcloud-github-action@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -220,7 +220,7 @@ jobs:
       shell: pwsh
     
     - name: Generate Dependency Report
-      run:  dotnet list package > dependency-report.txt
+      run: dotnet list package > dependency-report.txt
     
     - name: Upload Security Report
       uses: actions/upload-artifact@v4
@@ -229,7 +229,7 @@ jobs:
         path: dependency-report.txt
         retention-days: 30
 
-    - name:  Snyk DevSecOps Analysis
+    - name: Snyk DevSecOps Analysis
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       if: env.SNYK_TOKEN
@@ -241,13 +241,19 @@ jobs:
           npm install -g snyk
           Write-Host "Snyk CLI installed successfully"
         } catch {
-          Write-Host "Warning: Failed to install Snyk CLI, skipping Snyk analysis"
+          Write-Host "Warning: Failed to install Snyk CLI, creating placeholder files"
+          '{"message": "Snyk CLI installation failed"}' | Out-File -FilePath "snyk-dependencies.json" -Encoding UTF8
+          '{"message": "Snyk CLI installation failed"}' | Out-File -FilePath "snyk-code.json" -Encoding UTF8
+          "Snyk analysis skipped - CLI installation failed" | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
           exit 0
         }
         
         # Check if SNYK_TOKEN is available
         if (-not $env:SNYK_TOKEN) {
-          Write-Host "SNYK_TOKEN not configured, skipping Snyk analysis"
+          Write-Host "SNYK_TOKEN not configured, creating placeholder files"
+          '{"message": "SNYK_TOKEN not configured"}' | Out-File -FilePath "snyk-dependencies.json" -Encoding UTF8
+          '{"message": "SNYK_TOKEN not configured"}' | Out-File -FilePath "snyk-code.json" -Encoding UTF8
+          "Snyk analysis skipped - token not configured" | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
           exit 0
         }
         
@@ -256,7 +262,10 @@ jobs:
           snyk auth $env:SNYK_TOKEN
           Write-Host "Snyk authentication successful"
         } catch {
-          Write-Host "Warning: Snyk authentication failed, skipping analysis"
+          Write-Host "Warning: Snyk authentication failed, creating placeholder files"
+          '{"message": "Snyk authentication failed"}' | Out-File -FilePath "snyk-dependencies.json" -Encoding UTF8
+          '{"message": "Snyk authentication failed"}' | Out-File -FilePath "snyk-code.json" -Encoding UTF8
+          "Snyk analysis skipped - authentication failed" | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
           exit 0
         }
         
@@ -275,7 +284,10 @@ jobs:
           $targetFile = "PourfectApp/$projectFile"
           Write-Host "Found project file: $targetFile"
         } else {
-          Write-Host "No .NET project or solution files found, skipping Snyk analysis"
+          Write-Host "No .NET project or solution files found, creating placeholder files"
+          '{"message": "No supported project files found"}' | Out-File -FilePath "snyk-dependencies.json" -Encoding UTF8
+          '{"message": "No supported project files found"}' | Out-File -FilePath "snyk-code.json" -Encoding UTF8
+          "Snyk analysis skipped - no supported project files" | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
           exit 0
         }
         
@@ -348,17 +360,17 @@ jobs:
           Write-Host "Summary report generated"
         } catch {
           Write-Host "Summary report generated with warnings"
-          @"
-            Snyk Security Analysis Summary for PourfectApp
-            ==============================================
-            Project Type: .NET MAUI Application
-            Scan Date: $(Get-Date)
-            Status: Completed with warnings
-
-            Note: Snyk analysis optimised for .NET project structure.
-            Full vulnerability details available in JSON reports.
-            "@ | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
-                    }
+          "Snyk analysis completed with warnings at $(Get-Date)" | Out-File -FilePath "snyk-summary.txt" -Encoding UTF8
+        }
+        
+        # Ensure all required files exist
+        $requiredFiles = @("snyk-dependencies.json", "snyk-code.json", "snyk-summary.txt")
+        foreach ($file in $requiredFiles) {
+          if (-not (Test-Path $file)) {
+            Write-Host "Creating missing file: $file"
+            '{"message": "File was not generated during scan", "timestamp": "' + (Get-Date).ToString() + '"}' | Out-File -FilePath $file -Encoding UTF8
+          }
+        }
         
         # Display summary for build logs
         if (Test-Path "snyk-summary.txt") {
@@ -367,12 +379,15 @@ jobs:
         }
         
         Write-Host "DevSecOps security analysis completed for .NET MAUI project"
+        Write-Host "Files created:"
+        Get-ChildItem -Name "snyk-*.json", "snyk-*.txt" | ForEach-Object { Write-Host "  - $_" }
       shell: pwsh
       continue-on-error: true 
 
     - name: Upload comprehensive security reports
       uses: actions/upload-artifact@v4
       if: always()
+      continue-on-error: true
       with:
         name: devsecops-security-reports
         path: |
@@ -380,7 +395,6 @@ jobs:
           snyk-code.json
           snyk-summary.txt
         retention-days: 30
-        continue-on-error: true
     
     - name: Security Scan Results
       run: |
@@ -531,41 +545,39 @@ jobs:
       run: |
         echo "Validating Docker Compose orchestration"
         echo "======================================"
-    
+        
         # Check if docker-compose.yml exists
         if [ -f "docker-compose.yml" ]; then
-        echo "Docker Compose file found"
-      
-        # Try modern docker compose command first
-        if command -v docker &> /dev/null && docker compose version &> /dev/null; then
-          echo "Using modern docker compose command"
-          docker compose config --quiet
-          echo "Docker Compose configuration valid"
-        
-        # Show services that would be created
-          echo "Docker Compose services:"
-          docker compose config --services
-        
-        # Fall back to legacy docker-compose if available
-        elif command -v docker-compose &> /dev/null; then
-          echo "Using legacy docker-compose command"
-          docker-compose config --quiet
-          echo "Docker Compose configuration valid"
-        
-          echo "Docker Compose services:"
-          docker-compose config --services
-        
+          echo "Docker Compose file found"
+          
+          # Try modern docker compose command first
+          if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+            echo "Using modern docker compose command"
+            docker compose config --quiet
+            echo "Docker Compose configuration valid"
+            
+            # Show services that would be created
+            echo "Docker Compose services:"
+            docker compose config --services
+            
+          # Fall back to legacy docker-compose if available
+          elif command -v docker-compose &> /dev/null; then
+            echo "Using legacy docker-compose command"
+            docker-compose config --quiet
+            echo "Docker Compose configuration valid"
+            
+            echo "Docker Compose services:"
+            docker-compose config --services
+            
+          else
+            echo "Docker Compose command not available, skipping validation"
+            echo "Note: This step validates docker-compose.yml syntax when available"
+          fi
+          
+          echo "Docker Compose validation completed"
         else
-          echo "Docker Compose command not available, skipping validation"
-          echo "Note: This step validates docker-compose.yml syntax when available"
-        fi
-      
-        echo "Docker Compose validation completed"
-        else
-
-        echo "Docker Compose file not found - skipping validation"
-        echo "This is normal if your project doesn't use Docker Compose orchestration"
-
+          echo "Docker Compose file not found - skipping validation"
+          echo "This is normal if your project doesn't use Docker Compose orchestration"
         fi
     
     - name: Containerisation Summary
@@ -639,13 +651,12 @@ jobs:
         analysis_status="${{ needs.static-analysis.result }}"
         sonar_status="${{ needs.sonarcloud-analysis.result }}"
         dependency_status="${{ needs.dependency-security-scan.result }}"
-        snyk_status="${{ needs.snyk-security-analysis.result }}"
         android_status="${{ needs.android-build.result }}"
         docker_status="${{ needs.docker-containerisation.result }}"
         
         echo "Build: $build_status | Test: $test_status | Format: $format_status"
         echo "Analysis: $analysis_status | SonarCloud: $sonar_status | Dependencies: $dependency_status"
-        echo "Snyk: $snyk_status | Android: $android_status | Docker: $docker_status"
+        echo "Android: $android_status | Docker: $docker_status"
         
         # Determine overall status and notification priority
         if [[ "$build_status" == "failure" || "$test_status" == "failure" || "$format_status" == "failure" || "$analysis_status" == "failure" ]]; then
@@ -697,7 +708,6 @@ jobs:
         ### Stage 2 - Security & Quality:
         - **SonarCloud Analysis:** ${{ needs.sonarcloud-analysis.result == 'success' && 'PASS' || 'FAIL' }}
         - **Dependency Security:** ${{ needs.dependency-security-scan.result == 'success' && 'PASS' || 'FAIL' }}
-        - **Snyk Analysis:** ${{ needs.snyk-security-analysis.result == 'success' && 'PASS' || needs.snyk-security-analysis.result == 'skipped' && 'SKIP' || 'FAIL' }}
         
         ### Stage 3 - Build Artefacts:
         - **Android APK:** ${{ needs.android-build.result == 'success' && 'SUCCESS' || needs.android-build.result == 'skipped' && 'SKIPPED' || 'FAILED' }}
@@ -755,7 +765,7 @@ jobs:
               },
               {
                 "name": "Stage 2 - Security & Quality",
-                "value": "**SonarCloud:** ${{ needs.sonarcloud-analysis.result == 'success' && 'PASS' || 'FAIL' }} **Dependencies:** ${{ needs.dependency-security-scan.result == 'success' && 'PASS' || 'FAIL' }} **Snyk:** ${{ needs.snyk-security-analysis.result == 'success' && 'PASS' || needs.snyk-security-analysis.result == 'skipped' && 'SKIP' || 'FAIL' }}",
+                "value": "**SonarCloud:** ${{ needs.sonarcloud-analysis.result == 'success' && 'PASS' || 'FAIL' }} **Dependencies:** ${{ needs.dependency-security-scan.result == 'success' && 'PASS' || 'FAIL' }}",
                 "inline": false
               },
               {

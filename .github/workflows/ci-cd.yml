@@ -170,7 +170,7 @@ jobs:
 
   sonarcloud-analysis:
     needs: [code-compilation]
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     name: SonarCloud Analysis
     steps:
     - name: Checkout code with full history

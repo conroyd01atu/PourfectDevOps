@@ -1,5 +1,4 @@
-# PourfectApp Professional CI/CD Pipeline
-# Enterprise-grade DevOps pipeline with modular job separation and parallel execution
+# PourfectApp CI/CD Pipeline
 # Implements fail-fast strategy and comprehensive quality gates
 
 name: PourfectApp Professional CI/CD Pipeline
@@ -381,6 +380,7 @@ jobs:
           snyk-code.json
           snyk-summary.txt
         retention-days: 30
+        continue-on-error: true
     
     - name: Security Scan Results
       run: |
@@ -534,30 +534,39 @@ jobs:
     
         # Check if docker-compose.yml exists
         if [ -f "docker-compose.yml" ]; then
-          echo "Docker Compose file found"
+        echo "Docker Compose file found"
       
-          # Try modern docker compose command first
-          if command -v docker &> /dev/null && docker compose version &> /dev/null; then
-            echo "Using modern docker compose command"
-            docker compose config --quiet
-            echo "Docker Compose configuration valid"
+        # Try modern docker compose command first
+        if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+          echo "Using modern docker compose command"
+          docker compose config --quiet
+          echo "Docker Compose configuration valid"
         
-            # Show services that would be created
-            echo "Docker Compose services:"
-            docker compose config --services
+        # Show services that would be created
+          echo "Docker Compose services:"
+          docker compose config --services
         
-          # Fall back to legacy docker-compose if available
-          elif command -v docker-compose &> /dev/null; then
-            echo "Using legacy docker-compose command"
-            docker-compose config --quiet
-            echo "Docker Compose configuration valid"
+        # Fall back to legacy docker-compose if available
+        elif command -v docker-compose &> /dev/null; then
+          echo "Using legacy docker-compose command"
+          docker-compose config --quiet
+          echo "Docker Compose configuration valid"
         
-            echo "Docker Compose services:"
-            docker-compose config --services
+          echo "Docker Compose services:"
+          docker-compose config --services
         
-          else
-            echo "Docker Compose command not available, skipping validation"
-          fi
+        else
+          echo "Docker Compose command not available, skipping validation"
+          echo "Note: This step validates docker-compose.yml syntax when available"
+        fi
+      
+        echo "Docker Compose validation completed"
+        else
+
+        echo "Docker Compose file not found - skipping validation"
+        echo "This is normal if your project doesn't use Docker Compose orchestration"
+
+        fi
     
     - name: Containerisation Summary
       run: |

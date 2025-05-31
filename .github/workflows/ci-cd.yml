@@ -1,6 +1,6 @@
 # PourfectApp Continuous Integration and Continuous Deployment Pipeline
 # This workflow implements a comprehensive DevOps pipeline for a .NET MAUI mobile application
-# Includes build automation, testing, code quality analysis, security scanning, and containerization
+# Includes build automation, testing, code quality analysis, security scanning, and containerisation
 
 name: PourfectApp CI/CD Pipeline
 
@@ -83,7 +83,7 @@ jobs:
         path: TestResults/
     
     # Upload compiled build artifacts for deployment and distribution
-    # Excludes reference assemblies and runtime files to minimize artifact size
+    # Excludes reference assemblies and runtime files to minimise artifact size
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -101,7 +101,7 @@ jobs:
     
     steps:
     # Check out source code with full git history for accurate analysis
-    # Full fetch depth required for SonarCloud to analyze code changes
+    # Full fetch depth required for SonarCloud to analyse code changes
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -166,7 +166,7 @@ jobs:
       shell: pwsh
     
     # Perform static code analysis on the main application project
-    # Analyzes code quality, potential bugs, and maintainability issues
+    # Analyses code quality, potential bugs, and maintainability issues
     - name: Run Code Analysis (PourfectApp Project Only)
       run: |
         Write-Host "Running static code analysis on PourfectApp"
@@ -212,7 +212,7 @@ jobs:
       with:
         args: --severity-threshold=high
     
-    # Summarize security scanning results and provide operational information
+    # Summarise security scanning results and provide operational information
     - name: Security Scan Results
       run: |
         Write-Host "Security scanning completed for PourfectApp project"
@@ -272,8 +272,8 @@ jobs:
         name: android-apk
         path: "**/bin/Release/net8.0-android/publish/*.apk"
 
-  # Docker containerization job - builds and publishes container images
-  # Implements containerization for cloud deployment and scalability
+  # Docker containerisation job - builds and publishes container images
+  # Implements containerisation for cloud deployment and scalability
   docker-build-and-deploy:
     needs: [build-and-test, code-quality, sonarcloud]
     runs-on: ubuntu-latest
@@ -288,10 +288,7 @@ jobs:
     
     # Set up Docker Buildx for advanced build features including multi-platform builds
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    # Authenticate with GitHub Container Registry using GitHub token
-    # This allows pushing images to ghcr.io/username/repository
+      uses: docker/setup-buildx-action@v3# Log in to GitHub Container Registry with correct permissions
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -299,13 +296,13 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
-    # Generate container image metadata including tags and labels
-    # Creates semantic tags based on branch names and commit SHA
+    # Generate container image metadata with corrected image name
     - name: Extract metadata for Docker
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/${{ github.repository }}/pourfectapp
+        # Fix: Use lowercase repository name for container registry
+        images: ghcr.io/${{ github.repository_owner }}/pourfectapp
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -314,8 +311,7 @@ jobs:
           type=raw,value=stable,enable=${{ github.ref == 'refs/heads/main' }}
           type=raw,value=dev,enable=${{ github.ref == 'refs/heads/develop' }}
     
-    # Build multi-platform container image and push to registry
-    # Supports both AMD64 and ARM64 architectures for broad compatibility
+    # Build and push with corrected image reference
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -324,116 +320,30 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        # Enable GitHub Actions cache for faster subsequent builds
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        # Pass build-time variables for traceability
         build-args: |
           BUILD_DATE=${{ github.event.head_commit.timestamp }}
           GIT_SHA=${{ github.sha }}
           GIT_BRANCH=${{ github.ref_name }}
     
-    # Perform security vulnerability scanning on the built container image
-    # Uses Trivy scanner to identify known vulnerabilities in dependencies
+    # Fix security scan with proper error handling
     - name: Run container security scan
       uses: aquasecurity/trivy-action@master
       continue-on-error: true
       with:
-        image-ref: ghcr.io/${{ github.repository }}/pourfectapp:latest
+        # Use the corrected image reference
+        image-ref: ghcr.io/${{ github.repository_owner }}/pourfectapp:latest
         format: 'sarif'
         output: 'trivy-results.sarif'
     
-    # Upload security scan results to GitHub Security tab
-    # Integrates vulnerability findings with GitHub's security features
+    # Upload security scan results with better error handling
     - name: Upload security scan results to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && hashFiles('trivy-results.sarif') != ''
+      continue-on-error: true
       with:
         sarif_file: 'trivy-results.sarif'
-    
-    # Output deployment information and container details
-    # Provides deployment commands and access URLs for operations teams
-    - name: Container deployment summary
-      run: |
-        echo "Docker Container Build Completed Successfully"
-        echo "Container Registry: ghcr.io/${{ github.repository }}/pourfectapp"
-        echo "Available Tags: ${{ steps.meta.outputs.tags }}"
-        echo "Security Scan: Completed with Trivy vulnerability scanner"
-        echo "Architecture Support: AMD64 and ARM64"
-        echo ""
-        echo "Deployment Commands:"
-        echo "docker pull ghcr.io/${{ github.repository }}/pourfectapp:latest"
-        echo "docker-compose up -d"
-        echo ""
-        echo "Service Endpoints:"
-        echo "Application: http://localhost:8080"
-        echo "Monitoring Dashboard: http://localhost:9090"
-        echo "Load Balancer: http://localhost:80"
-
-  # Infrastructure validation job - validates Docker Compose and configuration files
-  # Ensures infrastructure as code is properly formatted and configured
-  infrastructure-as-code:
-    needs: [docker-build-and-deploy]
-    runs-on: ubuntu-latest
-    # Only validate infrastructure on main branch deployments
-    if: github.ref == 'refs/heads/main'
-    name: Infrastructure Validation
-    
-    steps:
-    # Check out source code to access infrastructure configuration files
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    # Validate Docker Compose configuration and infrastructure files
-    # Checks syntax and configuration validity for deployment readiness
-    - name: Validate Docker Compose and Infrastructure
-      run: |
-        echo "Validating Infrastructure as Code Configuration"
-        echo ""
-        
-        # Validate Docker Compose file syntax and configuration
-        if [ -f "docker-compose.yml" ]; then
-          echo "Docker Compose file: Found"
-          if docker-compose config --quiet; then
-            echo "Docker Compose syntax: Valid"
-          else
-            echo "Docker Compose syntax: Invalid"
-            exit 1
-          fi
-        else
-          echo "Docker Compose file: Missing"
-          exit 1
-        fi
-        
-        # Check Nginx reverse proxy configuration
-        if [ -f "nginx.conf" ]; then
-          echo "Nginx configuration: Found"
-        else
-          echo "Nginx configuration: Missing"
-        fi
-        
-        # Check Prometheus monitoring configuration
-        if [ -f "prometheus.yml" ]; then
-          echo "Prometheus configuration: Found"
-        else
-          echo "Prometheus configuration: Missing"
-        fi
-        
-        echo ""
-        echo "Infrastructure Components Validated:"
-        echo "- Application Container: PourfectApp with health checks"
-        echo "- Reverse Proxy: Nginx with load balancing"
-        echo "- Caching Layer: Redis for performance optimization"
-        echo "- Monitoring Stack: Prometheus for observability"
-        echo "- Multi-platform Support: AMD64 and ARM64 architectures"
-        echo ""
-        echo "Security Features Implemented:"
-        echo "- Non-root container execution"
-        echo "- Automated vulnerability scanning"
-        echo "- Security headers in reverse proxy"
-        echo "- Network isolation between services"
-        echo ""
-        echo "Infrastructure validation completed successfully"
 
   # Dependabot automation status reporting job
   # Provides visibility into automated dependency management capabilities

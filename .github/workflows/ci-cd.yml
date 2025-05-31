@@ -463,6 +463,10 @@ jobs:
         # Build the container image
         docker build -t pourfectapp:latest .
         
+        # Tag for Docker Hub
+        docker tag pourfectapp:latest ${{ secrets.DOCKER_USERNAME }}/pourfectapp:latest
+        docker tag pourfectapp:latest ${{ secrets.DOCKER_USERNAME }}/pourfectapp:${{ github.sha }}
+        
         echo "Docker build completed successfully"
         echo "Image: pourfectapp:latest"
         
@@ -499,6 +503,42 @@ jobs:
         
         echo "Security verification completed"
     
+    # NEW: Docker Hub Authentication
+    - name: Login to Docker Hub
+      if: success()
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+    
+    # NEW: Push to Docker Hub Registry
+    - name: Push to Docker Hub
+      if: success()
+      run: |
+        echo "Pushing container images to Docker Hub"
+        echo "======================================"
+        
+        # Push latest tag
+        echo "Pushing latest tag..."
+        docker push ${{ secrets.DOCKER_USERNAME }}/pourfectapp:latest
+        
+        # Push version-specific tag
+        echo "Pushing version tag: ${{ github.sha }}"
+        docker push ${{ secrets.DOCKER_USERNAME }}/pourfectapp:${{ github.sha }}
+        
+        # Display public repository URL
+        echo ""
+        echo "Container Successfully Published!"
+        echo "================================="
+        echo "Docker Hub Repository: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/pourfectapp"
+        echo "Pull Command: docker pull ${{ secrets.DOCKER_USERNAME }}/pourfectapp:latest"
+        echo ""
+        echo "Available Tags:"
+        echo "- latest (current build)"
+        echo "- ${{ github.sha }} (specific version)"
+        echo ""
+        echo "This demonstrates cloud deployment integration with automated container registry publishing"
+    
     - name: Create Docker image artefact
       run: |
         echo "Creating Docker image artefact for verification"
@@ -511,7 +551,7 @@ jobs:
         ls -lh pourfectapp-container.tar.gz
         echo "Docker image artefact created successfully"
         
-        # Generate verification file
+        # Generate verification file with Docker Hub info
         echo "PourfectApp Docker Container Verification" > docker-verification.txt
         echo "=========================================" >> docker-verification.txt
         echo "Build Date: $(date)" >> docker-verification.txt
@@ -519,18 +559,25 @@ jobs:
         echo "Branch: ${{ github.ref_name }}" >> docker-verification.txt
         echo "Image Size: $(ls -lh pourfectapp-container.tar.gz | awk '{print $5}')" >> docker-verification.txt
         echo "" >> docker-verification.txt
+        echo "Docker Hub Deployment:" >> docker-verification.txt
+        echo "- Repository: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/pourfectapp" >> docker-verification.txt
+        echo "- Latest Tag: ${{ secrets.DOCKER_USERNAME }}/pourfectapp:latest" >> docker-verification.txt
+        echo "- Version Tag: ${{ secrets.DOCKER_USERNAME }}/pourfectapp:${{ github.sha }}" >> docker-verification.txt
+        echo "" >> docker-verification.txt
         echo "Container Features Verified:" >> docker-verification.txt
         echo "- Multi-stage Docker build" >> docker-verification.txt
         echo "- Security hardening (non-root user)" >> docker-verification.txt
         echo "- Health check functionality" >> docker-verification.txt
         echo "- Core library containerisation" >> docker-verification.txt
         echo "- Automated testing integration" >> docker-verification.txt
+        echo "- Cloud deployment via Docker Hub" >> docker-verification.txt
         echo "" >> docker-verification.txt
         echo "This container demonstrates enterprise DevOps practices:" >> docker-verification.txt
         echo "- Containerised build and test processes" >> docker-verification.txt
         echo "- Production-ready security implementation" >> docker-verification.txt
         echo "- Infrastructure as Code principles" >> docker-verification.txt
         echo "- DevOps automation and CI/CD integration" >> docker-verification.txt
+        echo "- Cloud container registry deployment" >> docker-verification.txt
     
     - name: Upload Docker artefacts
       uses: actions/upload-artifact@v4
@@ -589,6 +636,7 @@ jobs:
         echo "Health check functionality verified"
         echo "Multi-stage build process completed"
         echo "Docker Compose orchestration validated"
+        echo "Container images published to Docker Hub"
         echo "Container artefacts generated for verification"
         echo ""
         echo "DevOps Capabilities Demonstrated:"
@@ -596,6 +644,8 @@ jobs:
         echo "- Infrastructure as Code with Docker Compose"
         echo "- Security hardening and best practices"
         echo "- Automated container building in CI/CD"
+        echo "- Cloud deployment via Docker Hub registry"
+        echo "- Version tagging and release management"
         echo "- Artefact generation for deployment verification"
         echo ""
         echo "Enterprise Practices Achieved:"
@@ -603,8 +653,9 @@ jobs:
         echo "- Non-root container execution for security"
         echo "- Health monitoring and container orchestration"
         echo "- Professional containerisation workflow"
+        echo "- Cloud-based container distribution"
         echo ""
-        echo "Container artefact available for download and local testing"
+        echo "Container available at: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/pourfectapp"
 
   # ============================================================================
   # STAGE 4: REPORTING & NOTIFICATIONS

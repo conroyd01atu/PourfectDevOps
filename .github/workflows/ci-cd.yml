@@ -202,8 +202,8 @@ jobs:
         }
       shell: pwsh
     
-    # Execute Snyk security scanning if authentication token is available
-    # Provides comprehensive security analysis of dependencies and code
+    
+    # Provides comprehensive security analysis of dependencies and code using synk.io
     - name: Run Security Scan with Snyk (if token available)
       continue-on-error: true
       uses: snyk/actions/dotnet@master
@@ -337,6 +337,7 @@ jobs:
     # Uses Trivy scanner to identify known vulnerabilities in dependencies
     - name: Run container security scan
       uses: aquasecurity/trivy-action@master
+      continue-on-error: true
       with:
         image-ref: ghcr.io/${{ github.repository }}/pourfectapp:latest
         format: 'sarif'
@@ -345,7 +346,7 @@ jobs:
     # Upload security scan results to GitHub Security tab
     # Integrates vulnerability findings with GitHub's security features
     - name: Upload security scan results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'

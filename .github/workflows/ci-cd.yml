@@ -577,7 +577,9 @@ jobs:
     
     # Discord webhook notification for immediate team awareness
     - name: Send Discord Notification
-      if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
       run: |
         # Send rich Discord notification with embedded content
         webhook_url="${{ secrets.DISCORD_WEBHOOK_URL }}"
@@ -629,7 +631,13 @@ jobs:
     
     # Email notification for formal team communication
     - name: Send Email Notification
-      if: ${{ secrets.SMTP_SERVER != '' && secrets.SMTP_USERNAME != '' }}
+      env:
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      if: ${{ env.SMTP_SERVER != '' && env.SMTP_USERNAME != '' }}
       run: |
         # Send professional email notification using SMTP
         
@@ -705,8 +713,8 @@ jobs:
         echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         echo ""
         echo "Notification Channels Attempted:"
-        echo "- Discord: ${{ secrets.DISCORD_WEBHOOK_URL != '' && 'Configured' || 'Not configured' }}"
-        echo "- Email: ${{ secrets.SMTP_SERVER != '' && 'Configured' || 'Not configured' }}"
+        echo "- Discord: ${{ env.DISCORD_WEBHOOK_URL != '' && 'Configured' || 'Not configured' }}"
+        echo "- Email: ${{ env.SMTP_SERVER != '' && 'Configured' || 'Not configured' }}"
         echo ""
         echo "Multi-channel notification system demonstrates:"
         echo "- Team communication automation"

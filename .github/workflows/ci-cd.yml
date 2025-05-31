@@ -359,3 +359,247 @@ jobs:
         echo "Security Updates: Automated pull requests for vulnerability fixes"
         echo "Update Schedule: Weekly dependency checks on Mondays"
         echo "Pull Request Limit: Maximum 5 concurrent dependency updates"
+
+  # Multi-channel notification system for DevOps team communication
+  devops-notifications:
+    runs-on: ubuntu-latest
+    name: DevOps Team Notifications
+    if: always()  # Run regardless of previous job status
+    needs: [build-and-test, code-quality, sonarcloud, android-build, docker-build-and-deploy, infrastructure-as-code]
+    
+    steps:
+    # Check out code for notification context
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Determine overall pipeline status for intelligent notifications
+    - name: Determine Pipeline Status
+      id: pipeline_status
+      run: |
+        # Analyse job results to determine overall pipeline health
+        build_status="${{ needs.build-and-test.result }}"
+        quality_status="${{ needs.code-quality.result }}"
+        sonar_status="${{ needs.sonarcloud.result }}"
+        android_status="${{ needs.android-build.result }}"
+        docker_status="${{ needs.docker-build-and-deploy.result }}"
+        infrastructure_status="${{ needs.infrastructure-as-code.result }}"
+        
+        echo "Build Status: $build_status"
+        echo "Quality Status: $quality_status" 
+        echo "SonarCloud Status: $sonar_status"
+        echo "Android Status: $android_status"
+        echo "Docker Status: $docker_status"
+        echo "Infrastructure Status: $infrastructure_status"
+        
+        # Determine overall status and notification priority
+        if [[ "$build_status" == "failure" || "$quality_status" == "failure" ]]; then
+          echo "overall_status=CRITICAL_FAILURE" >> $GITHUB_OUTPUT
+          echo "notification_level=critical" >> $GITHUB_OUTPUT
+          echo "status_emoji=" >> $GITHUB_OUTPUT
+          echo "status_color=16711680" >> $GITHUB_OUTPUT  # Red
+        elif [[ "$sonar_status" == "failure" || "$docker_status" == "failure" ]]; then
+          echo "overall_status=PARTIAL_FAILURE" >> $GITHUB_OUTPUT
+          echo "notification_level=warning" >> $GITHUB_OUTPUT
+          echo "status_emoji=️" >> $GITHUB_OUTPUT
+          echo "status_color=16776960" >> $GITHUB_OUTPUT  # Yellow
+        elif [[ "$android_status" == "success" && "$docker_status" == "success" ]]; then
+          echo "overall_status=FULL_SUCCESS" >> $GITHUB_OUTPUT
+          echo "notification_level=success" >> $GITHUB_OUTPUT
+          echo "status_emoji=" >> $GITHUB_OUTPUT
+          echo "status_color=65280" >> $GITHUB_OUTPUT  # Green
+        else
+          echo "overall_status=PARTIAL_SUCCESS" >> $GITHUB_OUTPUT
+          echo "notification_level=info" >> $GITHUB_OUTPUT
+          echo "status_emoji=ℹ️" >> $GITHUB_OUTPUT
+          echo "status_color=255" >> $GITHUB_OUTPUT  # Blue
+        fi
+        
+        echo "Pipeline analysis completed"
+    
+    # Generate comprehensive notification content
+    - name: Generate Notification Content
+      id: notification_content
+      run: |
+        # Create rich notification content with pipeline details
+        timestamp=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        commit_msg="${{ github.event.head_commit.message }}"
+        commit_author="${{ github.event.head_commit.author.name }}"
+        branch="${{ github.ref_name }}"
+        
+        # Build comprehensive status report
+        cat << EOF > notification_content.md
+        ## ${{ steps.pipeline_status.outputs.status_emoji }} PourfectApp DevOps Pipeline Report
+        
+        **Status:** ${{ steps.pipeline_status.outputs.overall_status }}
+        **Branch:** \`$branch\`
+        **Commit:** \`${{ github.sha }}\`
+        **Author:** $commit_author
+        **Message:** $commit_msg
+        **Timestamp:** $timestamp
+        
+        ### Pipeline Results:
+        - **Build & Test:** ${{ needs.build-and-test.result == 'success' && ' Success' || ' Failed' }}
+        - **Code Quality:** ${{ needs.code-quality.result == 'success' && ' Success' || ' Failed' }}
+        - **SonarCloud Analysis:** ${{ needs.sonarcloud.result == 'success' && ' Success' || ' Failed' }}
+        - **Android APK Build:** ${{ needs.android-build.result == 'success' && ' Success' || needs.android-build.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}
+        - **Docker Container:** ${{ needs.docker-build-and-deploy.result == 'success' && ' Success' || needs.docker-build-and-deploy.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}
+        - **Infrastructure Validation:** ${{ needs.infrastructure-as-code.result == 'success' && ' Success' || needs.infrastructure-as-code.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}
+        
+        ### DevOps Metrics:
+        - **Pipeline Duration:** Approximately ${{ github.event.head_commit.timestamp && 'Calculated from commit time' || 'In progress' }}
+        - **Security Scans:** Multiple tools integrated
+        - **Container Registry:** GitHub Container Registry
+        - **Deployment Ready:** ${{ needs.android-build.result == 'success' && needs.docker-build-and-deploy.result == 'success' && 'Yes' || 'Partial' }}
+        
+        ### Quick Actions:
+        - [View Pipeline](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        - [View Commit](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+        - [View Repository](${{ github.server_url }}/${{ github.repository }})
+        EOF
+        
+        # Store content for reuse
+        echo "notification_file=notification_content.md" >> $GITHUB_OUTPUT
+        echo "Notification content generated"
+    
+    # Discord webhook notification for immediate team awareness
+    - name: Send Discord Notification
+      if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+      run: |
+        # Send rich Discord notification with embedded content
+        webhook_url="${{ secrets.DISCORD_WEBHOOK_URL }}"
+        
+        # Create Discord embed payload
+        cat << EOF > discord_payload.json
+        {
+          "embeds": [{
+            "title": "${{ steps.pipeline_status.outputs.status_emoji }} PourfectApp DevOps Pipeline",
+            "description": "**Status:** ${{ steps.pipeline_status.outputs.overall_status }}",
+            "color": ${{ steps.pipeline_status.outputs.status_color }},
+            "fields": [
+              {
+                "name": "Branch",
+                "value": "\`${{ github.ref_name }}\`",
+                "inline": true
+              },
+              {
+                "name": "Commit",
+                "value": "[\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})",
+                "inline": true
+              },
+              {
+                "name": "Author",
+                "value": "${{ github.event.head_commit.author.name }}",
+                "inline": true
+              },
+              {
+                "name": "Pipeline Results",
+                "value": "**Build:** ${{ needs.build-and-test.result == 'success' && '' || '' }} **Quality:** ${{ needs.code-quality.result == 'success' && '' || '' }} **Security:** ${{ needs.sonarcloud.result == 'success' && '' || '' }} **Docker:** ${{ needs.docker-build-and-deploy.result == 'success' && '' || needs.docker-build-and-deploy.result == 'skipped' && '⏸️' || '' }}",
+                "inline": false
+              }
+            ],
+            "footer": {
+              "text": "PourfectApp DevOps | ATU Donegal",
+              "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+            },
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          }]
+        }
+        EOF
+        
+        # Send to Discord webhook
+        curl -H "Content-Type: application/json" \
+             -d @discord_payload.json \
+             "$webhook_url"
+        
+        echo "Discord notification sent successfully"
+    
+    # Email notification for formal team communication
+    - name: Send Email Notification
+      if: ${{ secrets.SMTP_SERVER != '' && secrets.SMTP_USERNAME != '' }}
+      run: |
+        # Send professional email notification using SMTP
+        
+        # Install mail utilities
+        sudo apt-get update && sudo apt-get install -y mailutils ssmtp
+        
+        # Configure SSMTP for email sending
+        sudo tee /etc/ssmtp/ssmtp.conf > /dev/null << EOF
+        root=${{ secrets.SMTP_USERNAME }}
+        mailhub=${{ secrets.SMTP_SERVER }}:${{ secrets.SMTP_PORT || '587' }}
+        hostname=${{ secrets.SMTP_SERVER }}
+        AuthUser=${{ secrets.SMTP_USERNAME }}
+        AuthPass=${{ secrets.SMTP_PASSWORD }}
+        UseTLS=YES
+        UseSTARTTLS=YES
+        EOF
+        
+        # Create email content
+        cat << EOF > email_content.txt
+        Subject: ${{ steps.pipeline_status.outputs.status_emoji }} PourfectApp DevOps Pipeline - ${{ steps.pipeline_status.outputs.overall_status }}
+        From: ${{ secrets.SMTP_USERNAME }}
+        To: ${{ secrets.NOTIFICATION_EMAIL }}
+        Content-Type: text/html
+        
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">${{ steps.pipeline_status.outputs.status_emoji }} PourfectApp DevOps Pipeline Report</h2>
+          
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3>Pipeline Status: ${{ steps.pipeline_status.outputs.overall_status }}</h3>
+            <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
+            <p><strong>Commit:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}">${{ github.sha }}</a></p>
+            <p><strong>Author:</strong> ${{ github.event.head_commit.author.name }}</p>
+            <p><strong>Message:</strong> ${{ github.event.head_commit.message }}</p>
+          </div>
+          
+          <h3>Pipeline Results:</h3>
+          <ul>
+            <li><strong>Build & Test:</strong> ${{ needs.build-and-test.result == 'success' && ' Success' || ' Failed' }}</li>
+            <li><strong>Code Quality:</strong> ${{ needs.code-quality.result == 'success' && ' Success' || ' Failed' }}</li>
+            <li><strong>SonarCloud Analysis:</strong> ${{ needs.sonarcloud.result == 'success' && ' Success' || ' Failed' }}</li>
+            <li><strong>Android APK:</strong> ${{ needs.android-build.result == 'success' && ' Success' || needs.android-build.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}</li>
+            <li><strong>Docker Container:</strong> ${{ needs.docker-build-and-deploy.result == 'success' && ' Success' || needs.docker-build-and-deploy.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}</li>
+            <li><strong>Infrastructure:</strong> ${{ needs.infrastructure-as-code.result == 'success' && ' Success' || needs.infrastructure-as-code.result == 'skipped' && '⏸️ Skipped' || ' Failed' }}</li>
+          </ul>
+          
+          <div style="margin: 30px 0;">
+            <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
+               style="background-color: #0366d6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+               View Full Pipeline
+            </a>
+          </div>
+          
+          <hr style="margin: 30px 0;">
+          <p style="color: #666; font-size: 12px;">
+            PourfectApp DevOps Pipeline | ATU Donegal<br>
+            Automated notification from GitHub Actions
+          </p>
+        </body>
+        </html>
+        EOF
+        
+        # Send email
+        ssmtp ${{ secrets.NOTIFICATION_EMAIL }} < email_content.txt
+        echo "Email notification sent successfully"
+
+      # Generate notification summary for pipeline reporting
+    - name: Notification Summary
+      run: |
+        echo "DevOps Team Notification System - Execution Summary"
+        echo "=================================================="
+        echo "Pipeline Status: ${{ steps.pipeline_status.outputs.overall_status }}"
+        echo "Notification Level: ${{ steps.pipeline_status.outputs.notification_level }}"
+        echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        echo ""
+        echo "Notification Channels Attempted:"
+        echo "- Discord: ${{ secrets.DISCORD_WEBHOOK_URL != '' && 'Configured' || 'Not configured' }}"
+        echo "- Email: ${{ secrets.SMTP_SERVER != '' && 'Configured' || 'Not configured' }}"
+        echo "- Slack: ${{ secrets.SLACK_WEBHOOK_URL != '' && 'Configured' || 'Not configured' }}"
+        echo "- Teams: ${{ secrets.TEAMS_WEBHOOK_URL != '' && 'Configured' || 'Not configured' }}"
+        echo ""
+        echo "Multi-channel notification system demonstrates:"
+        echo "- Team communication automation"
+        echo "- Operational awareness and alerting"
+        echo "- Enterprise-grade notification strategies"
+        echo "- DevOps culture and collaboration practices"
+

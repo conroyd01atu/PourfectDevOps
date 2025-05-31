@@ -531,20 +531,33 @@ jobs:
       run: |
         echo "Validating Docker Compose orchestration"
         echo "======================================"
-        
-        # Validate Docker Compose file syntax
+    
+        # Check if docker-compose.yml exists
         if [ -f "docker-compose.yml" ]; then
-          docker-compose config --quiet
-          echo "Docker Compose configuration valid"
-          
-          # Show services that would be created
-          echo "Docker Compose services:"
-          docker-compose config --services
-          
-          echo "Docker Compose validation completed"
-        else
-          echo "Docker Compose file not found"
-        fi
+          echo "Docker Compose file found"
+      
+          # Try modern docker compose command first
+          if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+            echo "Using modern docker compose command"
+            docker compose config --quiet
+            echo "Docker Compose configuration valid"
+        
+            # Show services that would be created
+            echo "Docker Compose services:"
+            docker compose config --services
+        
+          # Fall back to legacy docker-compose if available
+          elif command -v docker-compose &> /dev/null; then
+            echo "Using legacy docker-compose command"
+            docker-compose config --quiet
+            echo "Docker Compose configuration valid"
+        
+            echo "Docker Compose services:"
+            docker-compose config --services
+        
+          else
+            echo "Docker Compose command not available, skipping validation"
+          fi
     
     - name: Containerisation Summary
       run: |

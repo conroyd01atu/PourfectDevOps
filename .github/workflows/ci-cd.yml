@@ -629,79 +629,79 @@ jobs:
         
         echo "Discord notification sent successfully"
     
-    # Email notification for formal team communication
-    - name: Send Email Notification
-      env:
-        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
-        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-        SMTP_PORT: ${{ secrets.SMTP_PORT }}
-        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
-      if: ${{ env.SMTP_SERVER != '' && env.SMTP_USERNAME != '' }}
-      run: |
-        # Send professional email notification using SMTP
+    # # Email notification for formal team communication // NOT IN USE AS DISABLED BY MS365 - *was targetting student email address **
+    # - name: Send Email Notification
+    #   env:
+    #     SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+    #     SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+    #     SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+    #     SMTP_PORT: ${{ secrets.SMTP_PORT }}
+    #     NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+    #   if: ${{ env.SMTP_SERVER != '' && env.SMTP_USERNAME != '' }}
+    #   run: |
+    #     # Send professional email notification using SMTP
         
-        # Install mail utilities
-        sudo apt-get update && sudo apt-get install -y mailutils ssmtp
+    #     # Install mail utilities
+    #     sudo apt-get update && sudo apt-get install -y mailutils ssmtp
         
-        # Configure SSMTP for email sending
-        sudo tee /etc/ssmtp/ssmtp.conf > /dev/null << EOF
-        root=${{ secrets.SMTP_USERNAME }}
-        mailhub=${{ secrets.SMTP_SERVER }}:${{ secrets.SMTP_PORT || '587' }}
-        hostname=${{ secrets.SMTP_SERVER }}
-        AuthUser=${{ secrets.SMTP_USERNAME }}
-        AuthPass=${{ secrets.SMTP_PASSWORD }}
-        UseTLS=YES
-        UseSTARTTLS=YES
-        EOF
+    #     # Configure SSMTP for email sending
+    #     sudo tee /etc/ssmtp/ssmtp.conf > /dev/null << EOF
+    #     root=${{ secrets.SMTP_USERNAME }}
+    #     mailhub=${{ secrets.SMTP_SERVER }}:${{ secrets.SMTP_PORT || '587' }}
+    #     hostname=${{ secrets.SMTP_SERVER }}
+    #     AuthUser=${{ secrets.SMTP_USERNAME }}
+    #     AuthPass=${{ secrets.SMTP_PASSWORD }}
+    #     UseTLS=YES
+    #     UseSTARTTLS=YES
+    #     EOF
         
-        # Create email content
-        cat << EOF > email_content.txt
-        Subject: [${{ steps.pipeline_status.outputs.status_indicator }}] PourfectApp DevOps Pipeline - ${{ steps.pipeline_status.outputs.overall_status }}
-        From: ${{ secrets.SMTP_USERNAME }}
-        To: ${{ secrets.NOTIFICATION_EMAIL }}
-        Content-Type: text/html
+    #     # Create email content
+    #     cat << EOF > email_content.txt
+    #     Subject: [${{ steps.pipeline_status.outputs.status_indicator }}] PourfectApp DevOps Pipeline - ${{ steps.pipeline_status.outputs.overall_status }}
+    #     From: ${{ secrets.SMTP_USERNAME }}
+    #     To: ${{ secrets.NOTIFICATION_EMAIL }}
+    #     Content-Type: text/html
         
-        <html>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">[${{ steps.pipeline_status.outputs.status_indicator }}] PourfectApp DevOps Pipeline Report</h2>
+    #     <html>
+    #     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    #       <h2 style="color: #333;">[${{ steps.pipeline_status.outputs.status_indicator }}] PourfectApp DevOps Pipeline Report</h2>
           
-          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <h3>Pipeline Status: ${{ steps.pipeline_status.outputs.overall_status }}</h3>
-            <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
-            <p><strong>Commit:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}">${{ github.sha }}</a></p>
-            <p><strong>Author:</strong> ${{ github.event.head_commit.author.name }}</p>
-            <p><strong>Message:</strong> ${{ github.event.head_commit.message }}</p>
-          </div>
+    #       <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    #         <h3>Pipeline Status: ${{ steps.pipeline_status.outputs.overall_status }}</h3>
+    #         <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
+    #         <p><strong>Commit:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}">${{ github.sha }}</a></p>
+    #         <p><strong>Author:</strong> ${{ github.event.head_commit.author.name }}</p>
+    #         <p><strong>Message:</strong> ${{ github.event.head_commit.message }}</p>
+    #       </div>
           
-          <h3>Pipeline Results:</h3>
-          <ul>
-            <li><strong>Build & Test:</strong> ${{ needs.build-and-test.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
-            <li><strong>Code Quality:</strong> ${{ needs.code-quality.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
-            <li><strong>SonarCloud Analysis:</strong> ${{ needs.sonarcloud.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
-            <li><strong>Android APK:</strong> ${{ needs.android-build.result == 'success' && 'SUCCESS' || needs.android-build.result == 'skipped' && 'SKIPPED' || 'FAILED' }}</li>
-            <li><strong>Docker Container:</strong> ${{ needs.docker-containerisation.result == 'success' && 'SUCCESS' || needs.docker-containerisation.result == 'skipped' && 'SKIPPED' || 'FAILED' }}</li>
-          </ul>
+    #       <h3>Pipeline Results:</h3>
+    #       <ul>
+    #         <li><strong>Build & Test:</strong> ${{ needs.build-and-test.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
+    #         <li><strong>Code Quality:</strong> ${{ needs.code-quality.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
+    #         <li><strong>SonarCloud Analysis:</strong> ${{ needs.sonarcloud.result == 'success' && 'SUCCESS' || 'FAILED' }}</li>
+    #         <li><strong>Android APK:</strong> ${{ needs.android-build.result == 'success' && 'SUCCESS' || needs.android-build.result == 'skipped' && 'SKIPPED' || 'FAILED' }}</li>
+    #         <li><strong>Docker Container:</strong> ${{ needs.docker-containerisation.result == 'success' && 'SUCCESS' || needs.docker-containerisation.result == 'skipped' && 'SKIPPED' || 'FAILED' }}</li>
+    #       </ul>
           
-          <div style="margin: 30px 0;">
-            <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
-               style="background-color: #0366d6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-               View Full Pipeline
-            </a>
-          </div>
+    #       <div style="margin: 30px 0;">
+    #         <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
+    #            style="background-color: #0366d6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+    #            View Full Pipeline
+    #         </a>
+    #       </div>
           
-          <hr style="margin: 30px 0;">
-          <p style="color: #666; font-size: 12px;">
-            PourfectApp DevOps Pipeline | ATU Donegal<br>
-            Automated notification from GitHub Actions
-          </p>
-        </body>
-        </html>
-        EOF
+    #       <hr style="margin: 30px 0;">
+    #       <p style="color: #666; font-size: 12px;">
+    #         PourfectApp DevOps Pipeline | ATU Donegal<br>
+    #         Automated notification from GitHub Actions
+    #       </p>
+    #     </body>
+    #     </html>
+    #     EOF
         
-        # Send email
-        ssmtp ${{ secrets.NOTIFICATION_EMAIL }} < email_content.txt
-        echo "Email notification sent successfully"
+    #     # Send email
+    #     ssmtp ${{ secrets.NOTIFICATION_EMAIL }} < email_content.txt
+    #     echo "Email notification sent successfully"
 
     # Generate notification summary for pipeline reporting
     - name: Notification Summary

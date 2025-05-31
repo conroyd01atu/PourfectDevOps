@@ -463,7 +463,7 @@ jobs:
     
     # Discord webhook notification for immediate team awareness
     - name: Send Discord Notification
-      if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+      if: ${{ secrets.DISCORD_WEBHOOK_URL && secrets.DISCORD_WEBHOOK_URL != '' }}
       run: |
         # Send rich Discord notification with embedded content
         webhook_url="${{ secrets.DISCORD_WEBHOOK_URL }}"

@@ -16,7 +16,7 @@ env:
 
 jobs:
   # ============================================================================
-  # STAGE 1: CODE VALIDATION (Parallel Execution - Fail Fast Strategy)
+  # STAGE 1: CODE VALIDATION 
   # ============================================================================
   
   code-compilation:

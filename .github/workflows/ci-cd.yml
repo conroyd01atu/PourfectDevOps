@@ -24,7 +24,7 @@ jobs:
     name: Code Compilation
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -63,7 +63,7 @@ jobs:
     name: Unit Testing
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -97,7 +97,7 @@ jobs:
     name: Code Formatting Analysis
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -138,7 +138,7 @@ jobs:
     name: Static Code Analysis
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -174,7 +174,7 @@ jobs:
     name: SonarCloud Analysis
     steps:
     - name: Checkout code with full history
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
     
@@ -189,7 +189,7 @@ jobs:
     name: Dependency Security Scan
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -413,7 +413,7 @@ jobs:
     name: Android APK Build
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -453,7 +453,7 @@ jobs:
     name: Docker Containerisation
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Build Docker image
       run: |
@@ -690,7 +690,7 @@ jobs:
     ]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Determine Pipeline Status
       id: pipeline_status

@@ -32,7 +32,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Setup Java JDK (required for Android)
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'microsoft'
         java-version: '17'
@@ -421,7 +421,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Setup Java JDK
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'microsoft'
         java-version: '17'

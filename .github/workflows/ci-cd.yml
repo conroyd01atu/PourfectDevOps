@@ -50,7 +50,7 @@ jobs:
       run: dotnet build PourfectApp/PourfectApp.csproj -f net8.0-android --no-restore --configuration Release --verbosity normal
     
     - name: Upload build artefacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: build-artefacts
         path: |
@@ -85,7 +85,7 @@ jobs:
       shell: pwsh
     
     - name: Upload test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: test-results
@@ -223,7 +223,7 @@ jobs:
       run: dotnet list package > dependency-report.txt
     
     - name: Upload Security Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: dependency-security-report
         path: dependency-report.txt
@@ -385,7 +385,7 @@ jobs:
       continue-on-error: true 
 
     - name: Upload comprehensive security reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       continue-on-error: true
       with:
@@ -440,7 +440,7 @@ jobs:
       shell: pwsh
     
     - name: Upload APK artefact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: android-apk
         path: "**/bin/Release/net8.0-android/publish/*.apk"
@@ -580,7 +580,7 @@ jobs:
         echo "- Cloud container registry deployment" >> docker-verification.txt
     
     - name: Upload Docker artefacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: docker-container-artefacts
         path: |
